@@ -56,6 +56,8 @@ app.UseStaticFiles();
 
 app.UseHttpsRedirection();
 
+app.UseCors(cors => cors.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader().WithExposedHeaders("*"));
+
 app.UseAuthentication();
 app.UseAuthorization();
 
@@ -86,10 +88,10 @@ internal sealed class BearerSecuritySchemeTransformer(Microsoft.AspNetCore.Authe
         }
 
         document.Info = new()
-        { 
+        {
             Title = "MangoFusion API",
             Version = "1",
             Description = "A simple example of ASP.NET Core Web API"
-        }
+        };
     }
 }

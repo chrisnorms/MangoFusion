@@ -25,7 +25,17 @@ namespace MangoFusionApi.Controllers
         [HttpGet]
         public IActionResult GetMenuItems()
         {
-            response.Result = db.MenuItems.ToList();
+            List<MenuItem> menuItems = db.MenuItems.ToList();
+            List<OrderDetail> orderDetailsListWithRatings = db.OrderDetails.Where(o => o.Rating != null).ToList();
+
+            foreach (var menuItem in menuItems)
+            {
+                var ratings = orderDetailsListWithRatings.Where(o => o.MenuItemId == menuItem.Id).Select(m => m.Rating.Value);
+                double averageRating = ratings.Any() ? ratings.Average() : 0;
+                menuItem.Rating = averageRating;
+            }
+
+            response.Result = menuItems;
             response.StatusCode = HttpStatusCode.OK;
             return Ok(response);
         }
@@ -41,6 +51,11 @@ namespace MangoFusionApi.Controllers
             }
 
             MenuItem? menuItem = db.MenuItems.FirstOrDefault(m => m.Id == id);
+            List<OrderDetail> orderDetailsListWithRatings = db.OrderDetails.Where(o => o.Rating != null && o.MenuItemId == menuItem.Id).ToList();
+            
+            var ratings = orderDetailsListWithRatings.Where(o => o.MenuItemId == menuItem.Id).Select(m => m.Rating.Value);
+            double averageRating = ratings.Any() ? ratings.Average() : 0;
+            menuItem.Rating = averageRating;
             response.Result = menuItem;
             response.StatusCode = HttpStatusCode.OK;
             //apiResponse.IsSuccess = true;
